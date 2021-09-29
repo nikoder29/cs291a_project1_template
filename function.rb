@@ -14,14 +14,14 @@ def main(event:, context:)
 
   keys = event['headers'].keys
 
-  keys.each do |key|
-
-    if key.casecmp(content_type)
-      event['headers'][content_type] = event['headers'][key]
-    elsif key.casecmp(authorization)
-      event['headers'][authorization] = event['headers'][key]
-    end
-  end
+  # keys.each do |key|
+  #
+  #   if key.casecmp(content_type)
+  #     event['headers'][content_type] = event['headers'][key]
+  #   elsif key.casecmp(authorization)
+  #     event['headers'][authorization] = event['headers'][key]
+  #   end
+  # end
 
   status = nil
   case event['httpMethod']
