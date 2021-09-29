@@ -9,7 +9,7 @@ ENV['JWT_SECRET'] = 'MYSECRET'
 def main(event:, context:)
   # You shouldn't need to use context, but its fields are explained here:
   # https://docs.aws.amazon.com/lambda/latest/dg/ruby-context.html
-  content_type = 'content-type'
+  content_type = 'Content-Type'
   authorization = 'Authorization'
 
   keys = event['headers'].keys
@@ -50,7 +50,7 @@ def main(event:, context:)
 
   when 'POST'
     if event['path'] == '/token'
-      if event['headers'][content_type] != 'application/json'
+      if event['headers']['Content-Type'] != 'application/json'
         status = 415
       else
         status = 200
