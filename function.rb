@@ -50,6 +50,7 @@ def main(event:, context:)
 
   when 'POST'
     if event['path'] == '/token'
+      puts event['headers']['Content-Type']
       if event['headers']['Content-Type'] != 'application/json'
         status = 415
       else
