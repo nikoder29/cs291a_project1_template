@@ -22,21 +22,27 @@ def main(event:, context:)
     if event['path'] == '/token'
       status = 200
     elsif event['path'] == '/'
-      status = 405    
+      status = 405
     else
       status = 404
     end
 
-    if status==200 && event['headers']['Content-Type'] == 'application/json'
-      status = 200
-    else
+    if status==200 && event['headers']['Content-Type'] != 'application/json'
       status = 415
     end
 
-
+    if status == 200
+      begin
+        body = JSON.parse(event['body'])
+      rescue
+        status = 422
+      end
+    end
+    
   else
     status = 405
   end
+
   response(body: event, status: status)
 end
 
