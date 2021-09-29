@@ -11,24 +11,36 @@ def main(event:, context:)
   case event['httpMethod']
   when 'GET'
     if event['path'] == '/'
-      status = 200
+      status = 403
     elsif event['path'] == '/token'
       status = 405
     else
-      status=404
+      status = 404
     end
 
   when 'POST'
     if event['path'] == '/token'
       status = 200
+    elsif event['path'] == '/'
+      status = 405    
     else
       status = 404
     end
+
+    if status==200 && event['headers']['Content-Type'] == 'application/json'
+      status = 200
+    else
+      status = 415
+    end
+
+
   else
     status = 405
   end
   response(body: event, status: status)
 end
+
+
 
 def response(body: nil, status: 200)
   {
@@ -48,7 +60,7 @@ if $PROGRAM_NAME == __FILE__
                'body' => '{"name": "bboe"}',
                'headers' => { 'Content-Type' => 'application/json' },
                'httpMethod' => 'POST',
-               'path' => '/token/gfwwjhe'
+               'path' => '/token'
              })
 
   # Generate a token
