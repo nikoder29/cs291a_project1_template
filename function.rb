@@ -54,20 +54,20 @@ def main(event:, context:)
         status = 415
       else
         status = 200
-        # begin
-        payload = {data: JSON.parse(event['body']),
-          exp: Time.now.to_i + 5,nbf: Time.now.to_i + 2}
-        generated_token = JWT.encode payload, ENV['JWT_SECRET'], 'HS256'
+        begin
+          payload = {data: JSON.parse(event['body']),
+            exp: Time.now.to_i + 5,nbf: Time.now.to_i + 2}
+            generated_token = JWT.encode payload, ENV['JWT_SECRET'], 'HS256'
         # generatePostResponse(token: generated_token, status: status)
-        {
-          token: generated_token,
-          statusCode: 201,
-          headers: event['headers']
-        }
+          {
+            token: generated_token,
+            statusCode: 201,
+            headers: event['headers']
+          }
 
-        # rescue
-          # status = 422
-        # end
+        rescue
+          status = 422
+        end
       end
 
     elsif event['path'] == '/'
@@ -112,7 +112,8 @@ if $PROGRAM_NAME == __FILE__
 
   # Call /token
   PP.pp main(context: {}, event: {
-               'body' => '{"name": "bboe"}',
+               # 'body' => '{"name": "bboe"}',
+               'body' => '',
                'headers' => { 'Content-Type' => 'application/json' },
                'httpMethod' => 'POST',
                'path' => '/token'
