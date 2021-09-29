@@ -7,7 +7,27 @@ require 'pp'
 def main(event:, context:)
   # You shouldn't need to use context, but its fields are explained here:
   # https://docs.aws.amazon.com/lambda/latest/dg/ruby-context.html
-  response(body: event, status: 200)
+  status = nil
+  case event['httpMethod']
+  when 'GET'
+    if event['path'] == '/'
+      status = 200
+    elsif event['path'] == '/token'
+      status = 405
+    else
+      status=404
+    end
+
+  when 'POST'
+    if event['path'] == '/token'
+      status = 200
+    else
+      status = 404
+    end
+  else
+    status = 403
+  end
+  response(body: event, status: status)
 end
 
 def response(body: nil, status: 200)
@@ -28,7 +48,7 @@ if $PROGRAM_NAME == __FILE__
                'body' => '{"name": "bboe"}',
                'headers' => { 'Content-Type' => 'application/json' },
                'httpMethod' => 'POST',
-               'path' => '/token'
+               'path' => '/token/gfwwjhe'
              })
 
   # Generate a token
