@@ -28,20 +28,24 @@ def main(event:, context:)
   when 'GET'
     if event['path'] == '/'
       token = event['headers'][authorization].split(' ')[1]
-      begin
+      # begin
         # puts token
-        decoded_token_payload = JWT.decode(token, ENV['JWT_SECRET'])
-        # puts decoded_token_payload
-        if Time.now.to_i >= decoded_token_payload['nbf'] && Time.now.to_i < decoded_token_payload['exp']
-          status = 403
-          decoded_token_payload = nil
-        end
-      rescue
-        decoded_token_payload = nil
+      decoded_token_payload = JWT.decode(token, ENV['JWT_SECRET'])[0]
+
+      if Time.now.to_i < decoded_token_payload['nbf'] || Time.now.to_i >= decoded_token_payload['exp']
         status = 403
-      ensure
-        return generateGetResponse(payload: decoded_token_payload, status: status)
+        body = nil
+      else
+        status = 200
+        body = decoded_token_payload["data"]
       end
+      # rescue
+      #   puts "Error detected!"
+      #   decoded_token_payload = nil
+      #   status = 403
+      # ensure
+      return generateGetResponse(payload: body, status: status, headers: event["headers"])
+      # end
     elsif event['path'] == '/token'
       status = 405
     else
@@ -50,7 +54,7 @@ def main(event:, context:)
 
   when 'POST'
     if event['path'] == '/token'
-      puts event['headers']['Content-Type']
+
       if event['headers']['Content-Type'] != 'application/json'
         status = 415
       else
@@ -60,7 +64,7 @@ def main(event:, context:)
             exp: Time.now.to_i + 5,nbf: Time.now.to_i + 2}
             generated_token = JWT.encode payload, ENV['JWT_SECRET'], 'HS256'
         # generatePostResponse(token: generated_token, status: status)
-          {
+          return {
             token: generated_token,
             statusCode: 201,
             headers: event['headers']
@@ -81,27 +85,30 @@ def main(event:, context:)
     status = 405
   end
 
-  response(body: nil, status: status)
+  response(body: nil, status: status, headers: event["headers"])
 end
 
-def generatePostResponse(token: nil, status: 200)
+def generatePostResponse(token: nil, status: 200, headers: nil)
   {
     token: token,
-    statusCode: status
+    statusCode: status,
+    headers: headers
   }
 end
 
-def generateGetResponse(payload: nil, status: 200)
+def generateGetResponse(payload: nil, status: 200, headers: nil)
   {
     payload: payload,
-    statusCode: status
+    statusCode: status,
+    headers: headers
   }
 end
 
-def response(body: nil, status: 200)
+def response(body: nil, status: 200, headers: nil)
   {
     body: body ? body.to_json + "\n" : '',
-    statusCode: status
+    statusCode: status,
+    headers: headers
   }
 end
 
@@ -109,27 +116,28 @@ if $PROGRAM_NAME == __FILE__
   # If you run this file directly via `ruby function.rb` the following code
   # will execute. You can use the code below to help you test your functions
   # without needing to deploy first.
-  ENV['JWT_SECRET'] = 'NOTASECRET'
+  # ENV['JWT_SECRET'] = 'NOTASECRET'
 
   # Call /token
-  PP.pp main(context: {}, event: {
-               # 'body' => '{"name": "bboe"}',
-               'body' => '',
+  response = main(context: {}, event: {
+               'body' => '{"name": "bboe"}',
+               # 'body' => '',
                'headers' => { 'Content-Type' => 'application/json' },
                'httpMethod' => 'POST',
                'path' => '/token'
              })
-
+  PP.pp response
   # Generate a token
   payload = {
-    data: { user_id: 128 },
+    data: { name: 128 },
     exp: Time.now.to_i + 1,
     nbf: Time.now.to_i
   }
-  token = JWT.encode payload, ENV['JWT_SECRET'], 'HS256'
+  # token = JWT.encode payload, ENV['JWT_SECRET'], 'HS256'
   # Call /
+  sleep(3)
   PP.pp main(context: {}, event: {
-               'headers' => { 'Authorization' => "Bearer #{token}",
+               'headers' => { 'Authorization' => "Bearer #{response[:token]}",
                               'Content-Type' => 'application/json' },
                'httpMethod' => 'GET',
                'path' => '/'
