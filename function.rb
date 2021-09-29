@@ -25,7 +25,7 @@ def main(event:, context:)
       status = 404
     end
   else
-    status = 403
+    status = 405
   end
   response(body: event, status: status)
 end
