@@ -15,14 +15,15 @@ def main(event:, context:)
   puts "keys are"
   keys = event['headers'].keys
   puts keys
-  # for key in keys
-  #   if key.casecmp?("content-type")
-  #     event['headers']["content-type"] = event['headers'][key]
-  #   # elsif key.casecmp(authorization)
-  #   #   event['headers'][authorization] = event['headers'][key]
-  #   end
-  # end
-  
+  for key in keys
+    if key.casecmp?("content-type")
+      event['headers']['content-type'] = event['headers'][key]
+    # elsif key.casecmp(authorization)
+    #   event['headers'][authorization] = event['headers'][key]
+    end
+  end
+
+  puts event
   status = nil
   case event['httpMethod']
   when 'GET'
@@ -56,16 +57,18 @@ def main(event:, context:)
     if event['path'] == '/token'
       # puts event['headers']
       # puts content_type.to_sym
-      if event['headers']["content-type"] != 'application/json'
+      if event['headers']['content-type'] != 'application/json'
         status = 415
       else
         status = 200
+        puts "I am at line 64"
         begin
           parsed_body = JSON.parse(event['body'])
           payload = {data: JSON.parse(event['body']),
             exp: Time.now.to_i + 5,nbf: Time.now.to_i + 2}
             generated_token = JWT.encode payload, ENV['JWT_SECRET'], 'HS256'
         # generatePostResponse(token: generated_token, status: status)
+          puts "Returning the result now"
           return {
             token: generated_token,
             statusCode: 201,
