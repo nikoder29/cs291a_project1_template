@@ -10,8 +10,7 @@ def main(event:, context:)
   # You shouldn't need to use context, but its fields are explained here:
   # https://docs.aws.amazon.com/lambda/latest/dg/ruby-context.html
   PP.pp event
-  content_type = 'Content-Type'
-  authorization = 'Authorization'
+
   puts "keys are"
   keys = event['headers'].keys
   puts keys
@@ -26,9 +25,10 @@ def main(event:, context:)
   case event['httpMethod']
   when 'GET'
     if event['path'] == '/'
-      token = header_map['authorization'].split(' ')[1]
+
       begin
         # puts token
+        token = header_map['authorization'].split(' ')[1]
         decoded_token_payload = JWT.decode(token, ENV['JWT_SECRET'])[0]
 
         if Time.now.to_i < decoded_token_payload['nbf'] || Time.now.to_i >= decoded_token_payload['exp']
@@ -140,7 +140,7 @@ if $PROGRAM_NAME == __FILE__
   sleep(3)
   PP.pp main(context: {}, event: {
                # 'headers' => { 'Authorization' => "Bearer #{response[:token}",
-               'headers' => { 'Authorization' => "Bearer fjsdghjfdshjgb",
+               'headers' => { 
                               'COntENt-tyPe' => 'application/json' },
                'httpMethod' => 'GET',
                'path' => '/'
