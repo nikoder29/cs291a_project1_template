@@ -15,8 +15,8 @@ def main(event:, context:)
   keys = event['headers'].keys
   puts keys
   for key in keys
-    if key.casecmp?(content_type)
-      event['headers'][content_type] = event['headers'][key]
+    if key.casecmp?("content-type")
+      event['headers']["content-type"] = event['headers'][key]
     # elsif key.casecmp(authorization)
     #   event['headers'][authorization] = event['headers'][key]
     end
@@ -55,7 +55,7 @@ def main(event:, context:)
     if event['path'] == '/token'
       # puts event['headers']
       # puts content_type.to_sym
-      if event['headers']['Content-Type'] != 'application/json'
+      if event['headers']["content-type"] != 'application/json'
         status = 415
       else
         status = 200
