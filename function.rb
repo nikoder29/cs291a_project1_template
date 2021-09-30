@@ -11,9 +11,8 @@ def main(event:, context:)
   # https://docs.aws.amazon.com/lambda/latest/dg/ruby-context.html
   PP.pp event
 
-  puts "keys are"
   keys = event['headers'].keys
-  puts keys
+
   header_map = { "one" => "two"}
   keys.each do |key|
     header_map[key.downcase] = event['headers'][key]
@@ -34,19 +33,26 @@ def main(event:, context:)
         if auth_array[0] != 'Bearer'
           status = 403
           body = nil
-        elsif Time.now.to_i < decoded_token_payload['nbf'] || Time.now.to_i >= decoded_token_payload['exp']
-          status = 401
-          body = nil
+        # elsif Time.now.to_i < decoded_token_payload['nbf'] || Time.now.to_i >= decoded_token_payload['exp']
+        #   puts "Expired token"
+        #   status = 401
+        #   body = nil
         else
           status = 200
           body = decoded_token_payload["data"]
         end
-      rescue
-        puts "Error detected!"
-        decoded_token_payload = nil
+      rescue JWT::ExpiredSignature, JWT::ImmatureSignature => ex
+        puts ex
+        puts "Signature not valid!"
+        body = nil
+        status = 401
+      rescue JWT::DecodeError => ex
+        puts ex
+        puts "Decoding failed"
+        body = nil
         status = 403
+
       ensure
-        puts "returning the get response now"
         return generateGetResponse(payload: body, status: status)
       end
     elsif event['path'] == '/token'
@@ -63,14 +69,13 @@ def main(event:, context:)
         status = 415
       else
         status = 200
-        puts "I am at line 64"
         begin
           parsed_body = JSON.parse(event['body'])
           payload = {data: JSON.parse(event['body']),
             exp: Time.now.to_i + 5,nbf: Time.now.to_i + 2}
           generated_token = JWT.encode payload, ENV['JWT_SECRET'], 'HS256'
         # generatePostResponse(token: generated_token, status: status)
-          puts "Returning the result now"
+
           return response(body: {"token" => generated_token}, status: 201)
 
         rescue
@@ -121,7 +126,8 @@ if $PROGRAM_NAME == __FILE__
                'httpMethod' => 'POST',
                'path' => '/token'
              })
-  PP.pp response
+  # PP.pp response
+  # PP.pp JSON.parse(response[:body])["token"]
   # Generate a token
   payload = {
     data: { name: 128 },
@@ -130,10 +136,10 @@ if $PROGRAM_NAME == __FILE__
   }
   # token = JWT.encode payload, ENV['JWT_SECRET'], 'HS256'
   # Call /
-  sleep(3)
+  sleep(5)
   PP.pp main(context: {}, event: {
-               # 'headers' => { 'Authorization' => "Bearer #{response[:token}",
-               'headers' => {
+               'headers' => { 'Authorization' => "Bearer #{JSON.parse(response[:body])["token"]}",
+               # 'headers' => {
                               'COntENt-tyPe' => 'application/json' },
                'httpMethod' => 'GET',
                'path' => '/'
