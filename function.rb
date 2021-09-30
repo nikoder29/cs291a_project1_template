@@ -14,14 +14,13 @@ def main(event:, context:)
 
   keys = event['headers'].keys
 
-  # keys.each do |key|
-  #
-  #   if key.casecmp(content_type)
-  #     event['headers'][content_type] = event['headers'][key]
-  #   elsif key.casecmp(authorization)
-  #     event['headers'][authorization] = event['headers'][key]
-  #   end
-  # end
+  keys.each do |key|
+    if key.casecmp(content_type)
+      event['headers'][content_type] = event['headers'][key]
+    # elsif key.casecmp(authorization)
+    #   event['headers'][authorization] = event['headers'][key]
+    end
+  end
 
   status = nil
   case event['httpMethod']
@@ -55,7 +54,7 @@ def main(event:, context:)
   when 'POST'
     if event['path'] == '/token'
 
-      if event['headers']['Content-Type'] != 'application/json'
+      if event['headers'][content_type] != 'application/json'
         status = 415
       else
         status = 200
@@ -140,7 +139,7 @@ if $PROGRAM_NAME == __FILE__
   sleep(3)
   PP.pp main(context: {}, event: {
                'headers' => { 'Authorization' => "Bearer #{response[:token]}",
-                              'Content-Type' => 'application/json' },
+                              'content-Type' => 'application/json' },
                'httpMethod' => 'GET',
                'path' => '/'
              })
