@@ -29,15 +29,12 @@ def main(event:, context:)
         # puts token
         auth_array = header_map['authorization'].split(' ')
         token = auth_array[1]
-        decoded_token_payload = JWT.decode(token, ENV['JWT_SECRET'])[0]
+
         if auth_array[0] != 'Bearer'
           status = 403
           body = nil
-        # elsif Time.now.to_i < decoded_token_payload['nbf'] || Time.now.to_i >= decoded_token_payload['exp']
-        #   puts "Expired token"
-        #   status = 401
-        #   body = nil
         else
+          decoded_token_payload = JWT.decode(token, ENV['JWT_SECRET'])[0]
           status = 200
           body = decoded_token_payload["data"]
         end
@@ -51,7 +48,9 @@ def main(event:, context:)
         puts "Decoding failed"
         body = nil
         status = 403
-
+      rescue
+        body = nil
+        status = 403
       ensure
         return generateGetResponse(payload: body, status: status)
       end
