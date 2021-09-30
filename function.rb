@@ -31,7 +31,7 @@ def main(event:, context:)
         auth_array = header_map['authorization'].split(' ')
         token = auth_array[1]
         decoded_token_payload = JWT.decode(token, ENV['JWT_SECRET'])[0]
-        if token != 'Bearer'
+        if auth_array[0] != 'Bearer'
           status = 403
           body = nil
         elsif Time.now.to_i < decoded_token_payload['nbf'] || Time.now.to_i >= decoded_token_payload['exp']
