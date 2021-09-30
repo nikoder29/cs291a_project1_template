@@ -60,6 +60,7 @@ def main(event:, context:)
       else
         status = 200
         begin
+          parsed_body = JSON.parse(event['body'])
           payload = {data: JSON.parse(event['body']),
             exp: Time.now.to_i + 5,nbf: Time.now.to_i + 2}
             generated_token = JWT.encode payload, ENV['JWT_SECRET'], 'HS256'
@@ -71,6 +72,7 @@ def main(event:, context:)
           }
 
         rescue
+          puts  "parsing failed!"
           status = 422
         end
       end
