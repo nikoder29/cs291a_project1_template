@@ -9,7 +9,6 @@ ENV['JWT_SECRET'] = 'WHATASECRET'
 def main(event:, context:)
   # You shouldn't need to use context, but its fields are explained here:
   # https://docs.aws.amazon.com/lambda/latest/dg/ruby-context.html
-  PP.pp event
 
   keys = event['headers'].keys
 
@@ -18,7 +17,7 @@ def main(event:, context:)
     header_map[key.downcase] = event['headers'][key]
   end
 
-  puts header_map
+  # puts header_map
 
   status = nil
   case event['httpMethod']
@@ -52,7 +51,7 @@ def main(event:, context:)
         body = nil
         status = 403
       ensure
-        return generateGetResponse(payload: body, status: status)
+        return response(body: body, status: status)
       end
     elsif event['path'] == '/token'
       status = 405
@@ -135,10 +134,10 @@ if $PROGRAM_NAME == __FILE__
   }
   # token = JWT.encode payload, ENV['JWT_SECRET'], 'HS256'
   # Call /
-  sleep(5)
+  sleep(3)
   PP.pp main(context: {}, event: {
-               'headers' => { 'Authorization' => "Bearer #{JSON.parse(response[:body])["token"]}",
-               # 'headers' => {
+               'headers' => { 'AuthoriZation' => "Bearer #{JSON.parse(response[:body])["token"]}",
+               # 'headers' => { 'AuthoRization' => "Bearer: foobar",
                               'COntENt-tyPe' => 'application/json' },
                'httpMethod' => 'GET',
                'path' => '/'
