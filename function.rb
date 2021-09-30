@@ -14,8 +14,8 @@ def main(event:, context:)
   puts "keys are"
   keys = event['headers'].keys
   puts keys
-  for key in keys do
-    if key.casecmp(content_type) == 0
+  for key in keys
+    if key.casecmp?(content_type)
       event['headers'][content_type] = event['headers'][key]
     # elsif key.casecmp(authorization)
     #   event['headers'][authorization] = event['headers'][key]
