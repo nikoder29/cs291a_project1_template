@@ -45,6 +45,7 @@ def main(event:, context:)
         decoded_token_payload = nil
         status = 403
       ensure
+        puts "returning the get response now"
         return generateGetResponse(payload: body, status: status, headers: event["headers"])
       end
     elsif event['path'] == '/token'
@@ -103,6 +104,7 @@ def generatePostResponse(token: nil, status: 200, headers: nil)
 end
 
 def generateGetResponse(payload: nil, status: 200, headers: nil)
+  puts "sending out the post response"
   {
     payload: payload,
     statusCode: status,
@@ -143,7 +145,8 @@ if $PROGRAM_NAME == __FILE__
   # Call /
   sleep(3)
   PP.pp main(context: {}, event: {
-               'headers' => { 'Authorization' => "Bearer #{response[:token]}",
+               # 'headers' => { 'Authorization' => "Bearer #{response[:token}",
+               'headers' => { 'Authorization' => "Bearer fjsdghjfdshjgb",
                               'COntENt-tyPe' => 'application/json' },
                'httpMethod' => 'GET',
                'path' => '/'
