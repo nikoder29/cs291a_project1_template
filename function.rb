@@ -9,6 +9,7 @@ ENV['JWT_SECRET'] = 'MYSECRET'
 def main(event:, context:)
   # You shouldn't need to use context, but its fields are explained here:
   # https://docs.aws.amazon.com/lambda/latest/dg/ruby-context.html
+  PP.pp event
   content_type = 'Content-Type'
   authorization = 'Authorization'
   puts "keys are"
