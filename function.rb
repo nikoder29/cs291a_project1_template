@@ -14,9 +14,9 @@ def main(event:, context:)
   puts "keys are"
   keys = event['headers'].keys
   puts keys
-  keys.each do |mykey|
-    if mykey.casecmp(content_type) == 0
-      event['headers'][content_type] = event['headers'][mykey]
+  for key in keys do
+    if key.casecmp(content_type) == 0
+      event['headers'][content_type] = event['headers'][key]
     # elsif key.casecmp(authorization)
     #   event['headers'][authorization] = event['headers'][key]
     end
@@ -124,7 +124,7 @@ if $PROGRAM_NAME == __FILE__
   response = main(context: {}, event: {
                # 'body' => '{"name": "bboe"}',
                'body' => '{}',
-               'headers' => { 'Content-Type' => 'application/json' },
+               'headers' => { 'COntENt-tyPe' => 'application/json' },
                'httpMethod' => 'POST',
                'path' => '/token'
              })
@@ -140,7 +140,7 @@ if $PROGRAM_NAME == __FILE__
   sleep(3)
   PP.pp main(context: {}, event: {
                'headers' => { 'Authorization' => "Bearer #{response[:token]}",
-                              'content-Type' => 'application/json' },
+                              'COntENt-tyPe' => 'application/json' },
                'httpMethod' => 'GET',
                'path' => '/'
              })
