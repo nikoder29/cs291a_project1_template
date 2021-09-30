@@ -28,24 +28,24 @@ def main(event:, context:)
   when 'GET'
     if event['path'] == '/'
       token = event['headers'][authorization].split(' ')[1]
-      # begin
+      begin
         # puts token
-      decoded_token_payload = JWT.decode(token, ENV['JWT_SECRET'])[0]
+        decoded_token_payload = JWT.decode(token, ENV['JWT_SECRET'])[0]
 
-      if Time.now.to_i < decoded_token_payload['nbf'] || Time.now.to_i >= decoded_token_payload['exp']
+        if Time.now.to_i < decoded_token_payload['nbf'] || Time.now.to_i >= decoded_token_payload['exp']
+          status = 403
+          body = nil
+        else
+          status = 200
+          body = decoded_token_payload["data"]
+        end
+      rescue
+        puts "Error detected!"
+        decoded_token_payload = nil
         status = 403
-        body = nil
-      else
-        status = 200
-        body = decoded_token_payload["data"]
+      ensure
+        return generateGetResponse(payload: body, status: status, headers: event["headers"])
       end
-      # rescue
-      #   puts "Error detected!"
-      #   decoded_token_payload = nil
-      #   status = 403
-      # ensure
-      return generateGetResponse(payload: body, status: status, headers: event["headers"])
-      # end
     elsif event['path'] == '/token'
       status = 405
     else
@@ -120,8 +120,8 @@ if $PROGRAM_NAME == __FILE__
 
   # Call /token
   response = main(context: {}, event: {
-               'body' => '{"name": "bboe"}',
-               # 'body' => '',
+               # 'body' => '{"name": "bboe"}',
+               'body' => '{',
                'headers' => { 'Content-Type' => 'application/json' },
                'httpMethod' => 'POST',
                'path' => '/token'
