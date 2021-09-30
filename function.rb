@@ -14,13 +14,13 @@ def main(event:, context:)
 
   keys = event['headers'].keys
 
-  keys.each do |key|
-    if key.casecmp(content_type)
-      event['headers'][content_type.to_sym] = event['headers'][key]
-    # elsif key.casecmp(authorization)
-    #   event['headers'][authorization] = event['headers'][key]
-    end
-  end
+  # keys.each do |key|
+  #   if key.casecmp(content_type)
+  #     event['headers'][content_type.to_sym] = event['headers'][key]
+  #   # elsif key.casecmp(authorization)
+  #   #   event['headers'][authorization] = event['headers'][key]
+  #   end
+  # end
 
   status = nil
   case event['httpMethod']
@@ -53,9 +53,9 @@ def main(event:, context:)
 
   when 'POST'
     if event['path'] == '/token'
-      puts event['headers']
-      puts content_type.to_sym
-      if event['headers'][content_type.to_sym] != 'application/json'
+      # puts event['headers']
+      # puts content_type.to_sym
+      if event['headers']['Content-Type'] != 'application/json'
         status = 415
       else
         status = 200
