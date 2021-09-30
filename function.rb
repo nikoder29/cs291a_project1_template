@@ -11,16 +11,16 @@ def main(event:, context:)
   # https://docs.aws.amazon.com/lambda/latest/dg/ruby-context.html
   content_type = 'Content-Type'
   authorization = 'Authorization'
-
+  puts "keys are"
   keys = event['headers'].keys
-
-  # keys.each do |key|
-  #   if key.casecmp(content_type)
-  #     event['headers'][content_type.to_sym] = event['headers'][key]
-  #   # elsif key.casecmp(authorization)
-  #   #   event['headers'][authorization] = event['headers'][key]
-  #   end
-  # end
+  puts keys
+  keys.each do |mykey|
+    if mykey.casecmp(content_type) == 0
+      event['headers'][content_type] = event['headers'][mykey]
+    # elsif key.casecmp(authorization)
+    #   event['headers'][authorization] = event['headers'][key]
+    end
+  end
 
   status = nil
   case event['httpMethod']
@@ -123,7 +123,7 @@ if $PROGRAM_NAME == __FILE__
   # Call /token
   response = main(context: {}, event: {
                # 'body' => '{"name": "bboe"}',
-               'body' => '{',
+               'body' => '{}',
                'headers' => { 'Content-Type' => 'application/json' },
                'httpMethod' => 'POST',
                'path' => '/token'
