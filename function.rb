@@ -28,10 +28,11 @@ def main(event:, context:)
 
       begin
         # puts token
-        token = header_map['authorization'].split(' ')[1]
+        auth_array = header_map['authorization'].split(' ')
+        token = auth_array[1]
         decoded_token_payload = JWT.decode(token, ENV['JWT_SECRET'])[0]
 
-        if Time.now.to_i < decoded_token_payload['nbf'] || Time.now.to_i >= decoded_token_payload['exp']
+        if token != 'Bearer' || Time.now.to_i < decoded_token_payload['nbf'] || Time.now.to_i >= decoded_token_payload['exp']
           status = 403
           body = nil
         else
@@ -65,13 +66,10 @@ def main(event:, context:)
           parsed_body = JSON.parse(event['body'])
           payload = {data: JSON.parse(event['body']),
             exp: Time.now.to_i + 5,nbf: Time.now.to_i + 2}
-            generated_token = JWT.encode payload, ENV['JWT_SECRET'], 'HS256'
+          generated_token = JWT.encode payload, ENV['JWT_SECRET'], 'HS256'
         # generatePostResponse(token: generated_token, status: status)
           puts "Returning the result now"
-          return {
-            token: generated_token,
-            statusCode: 201
-          }
+          return response(body: {"token" => generated_token}, status: 201)
 
         rescue
           puts  "parsing failed!"
@@ -92,17 +90,10 @@ def main(event:, context:)
   response(body: nil, status: status)
 end
 
-def generatePostResponse(token: nil, status: 200)
-  {
-    token: token,
-    statusCode: status
-  }
-end
-
 def generateGetResponse(payload: nil, status: 200)
   puts "sending out the post response"
   {
-    payload: payload,
+    body: payload,
     statusCode: status
   }
 end
@@ -140,7 +131,7 @@ if $PROGRAM_NAME == __FILE__
   sleep(3)
   PP.pp main(context: {}, event: {
                # 'headers' => { 'Authorization' => "Bearer #{response[:token}",
-               'headers' => { 
+               'headers' => {
                               'COntENt-tyPe' => 'application/json' },
                'httpMethod' => 'GET',
                'path' => '/'
