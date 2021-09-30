@@ -16,7 +16,7 @@ def main(event:, context:)
 
   keys.each do |key|
     if key.casecmp(content_type)
-      event['headers'][content_type] = event['headers'][key]
+      event['headers'][content_type.to_sym] = event['headers'][key]
     # elsif key.casecmp(authorization)
     #   event['headers'][authorization] = event['headers'][key]
     end
@@ -53,8 +53,9 @@ def main(event:, context:)
 
   when 'POST'
     if event['path'] == '/token'
-
-      if event['headers'][content_type] != 'application/json'
+      puts event['headers']
+      puts content_type.to_sym
+      if event['headers'][content_type.to_sym] != 'application/json'
         status = 415
       else
         status = 200
