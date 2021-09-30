@@ -4,7 +4,7 @@ require 'json'
 require 'jwt'
 require 'pp'
 
-ENV['JWT_SECRET'] = 'MYSECRET'
+ENV['JWT_SECRET'] = 'WHATASECRET'
 
 def main(event:, context:)
   # You shouldn't need to use context, but its fields are explained here:
@@ -18,8 +18,8 @@ def main(event:, context:)
   for key in keys
     if key.casecmp?("content-type")
       event['headers']['content-type'] = event['headers'][key]
-    # elsif key.casecmp(authorization)
-    #   event['headers'][authorization] = event['headers'][key]
+    elsif key.casecmp('authorization')
+      event['headers']['authorization'] = event['headers'][key]
     end
   end
 
@@ -28,7 +28,7 @@ def main(event:, context:)
   case event['httpMethod']
   when 'GET'
     if event['path'] == '/'
-      token = event['headers'][authorization].split(' ')[1]
+      token = event['headers']['authorization'].split(' ')[1]
       begin
         # puts token
         decoded_token_payload = JWT.decode(token, ENV['JWT_SECRET'])[0]
