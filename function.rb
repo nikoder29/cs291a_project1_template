@@ -44,7 +44,7 @@ def main(event:, context:)
         status = 403
       ensure
         puts "returning the get response now"
-        return generateGetResponse(payload: body, status: status, headers: header_map)
+        return generateGetResponse(payload: body, status: status)
       end
     elsif event['path'] == '/token'
       status = 405
@@ -70,8 +70,7 @@ def main(event:, context:)
           puts "Returning the result now"
           return {
             token: generated_token,
-            statusCode: 201,
-            headers: event['headers']
+            statusCode: 201
           }
 
         rescue
@@ -90,31 +89,28 @@ def main(event:, context:)
     status = 405
   end
 
-  response(body: nil, status: status, headers: event["headers"])
+  response(body: nil, status: status)
 end
 
-def generatePostResponse(token: nil, status: 200, headers: nil)
+def generatePostResponse(token: nil, status: 200)
   {
     token: token,
-    statusCode: status,
-    headers: headers
+    statusCode: status
   }
 end
 
-def generateGetResponse(payload: nil, status: 200, headers: nil)
+def generateGetResponse(payload: nil, status: 200)
   puts "sending out the post response"
   {
     payload: payload,
-    statusCode: status,
-    headers: headers
+    statusCode: status
   }
 end
 
-def response(body: nil, status: 200, headers: nil)
+def response(body: nil, status: 200)
   {
     body: body ? body.to_json + "\n" : '',
-    statusCode: status,
-    headers: headers
+    statusCode: status
   }
 end
 
