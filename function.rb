@@ -15,14 +15,14 @@ def main(event:, context:)
   puts "keys are"
   keys = event['headers'].keys
   puts keys
-  for key in keys
-    if key.casecmp?("content-type")
-      event['headers']["content-type"] = event['headers'][key]
-    # elsif key.casecmp(authorization)
-    #   event['headers'][authorization] = event['headers'][key]
-    end
-  end
-
+  # for key in keys
+  #   if key.casecmp?("content-type")
+  #     event['headers']["content-type"] = event['headers'][key]
+  #   # elsif key.casecmp(authorization)
+  #   #   event['headers'][authorization] = event['headers'][key]
+  #   end
+  # end
+  
   status = nil
   case event['httpMethod']
   when 'GET'
