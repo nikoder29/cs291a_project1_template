@@ -15,20 +15,18 @@ def main(event:, context:)
   puts "keys are"
   keys = event['headers'].keys
   puts keys
-  for key in keys
-    if key.casecmp?("content-type")
-      event['headers']['content-type'] = event['headers'][key]
-    elsif key.casecmp('authorization')
-      event['headers']['authorization'] = event['headers'][key]
-    end
+  header_map = { "one" => "two"}
+  keys.each do |key|
+    header_map[key.downcase] = event['headers'][key]
   end
 
-  puts event
+  puts header_map
+
   status = nil
   case event['httpMethod']
   when 'GET'
     if event['path'] == '/'
-      token = event['headers']['authorization'].split(' ')[1]
+      token = header_map['authorization'].split(' ')[1]
       begin
         # puts token
         decoded_token_payload = JWT.decode(token, ENV['JWT_SECRET'])[0]
@@ -46,7 +44,7 @@ def main(event:, context:)
         status = 403
       ensure
         puts "returning the get response now"
-        return generateGetResponse(payload: body, status: status, headers: event["headers"])
+        return generateGetResponse(payload: body, status: status, headers: header_map)
       end
     elsif event['path'] == '/token'
       status = 405
@@ -58,7 +56,7 @@ def main(event:, context:)
     if event['path'] == '/token'
       # puts event['headers']
       # puts content_type.to_sym
-      if event['headers']['content-type'] != 'application/json'
+      if header_map['content-type'] != 'application/json'
         status = 415
       else
         status = 200
